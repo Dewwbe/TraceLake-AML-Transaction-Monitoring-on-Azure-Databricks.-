@@ -1,0 +1,22 @@
+# Metadata-driven data quality rules. Applied by aml.quality.dq_framework.
+# severity: error | warn          (error rules count toward the gate threshold)
+# action:   quarantine | flag     (quarantine removes the row from Silver; flag keeps it)
+tables:
+  silver.transactions:
+    max_error_fail_pct: 5.0
+    rules:
+      - {id: TXN_001, type: not_null, column: event_ts}
+      - {id: TXN_002, type: not_null, column: sender_account}
+      - {id: TXN_003, type: not_null, column: receiver_account}
+      - {id: TXN_004, type: range, column: amount_original, params: {gt: 0}}
+      - {id: TXN_005, type: expression, params: {expr: "amount_aed IS NOT NULL"}}   # unknown currency -> no FX rate
+      - {id: TXN_006, type: expression, params: {expr: "event_ts <= current_timestamp()"}}
+      - {id: TXN_007, type: not_null, column: sender_country, severity: warn, action: flag}
+      - {id: TXN_008, type: expression, params: {expr: "sender_account <> receiver_account"}, severity: warn, action: flag}
+  silver.customers:
+    max_error_fail_pct: 2.0
+    rules:
+      - {id: CUS_001, type: not_null, column: customer_id}
+      - {id: CUS_002, type: unique, columns: [customer_id]}
+      - {id: CUS_003, type: not_null, column: full_name}
+      - {id: CUS_004, type: expression, params: {expr: "date_of_birth < onboarding_date"}, severity: warn, action: flag}
