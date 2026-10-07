@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: aml
+    folder: AML
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

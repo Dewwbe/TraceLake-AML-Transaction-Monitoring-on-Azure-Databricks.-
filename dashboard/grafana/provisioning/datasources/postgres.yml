@@ -1,0 +1,15 @@
+apiVersion: 1
+datasources:
+  - name: AML Postgres
+    uid: aml-postgres
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres:5432
+    user: aml
+    jsonData:
+      database: aml
+      sslmode: disable
+      postgresVersion: 1600
+    secureJsonData:
+      password: aml
+    isDefault: true

@@ -1,0 +1,28 @@
+# Local dashboard stack: PostgreSQL (query layer for the Gold tables) + Grafana.
+# Start: docker compose -f dashboard/docker-compose.yml up -d     Grafana: http://localhost:3000 (admin / admin)
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: aml
+      POSTGRES_PASSWORD: aml
+      POSTGRES_DB: aml
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  grafana:
+    image: grafana/grafana-oss:11.2.0
+    depends_on:
+      - postgres
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/aml_overview.json
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+volumes:
+  pgdata:
