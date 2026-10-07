@@ -1,0 +1,36 @@
+# Source profile for the SAML-D transaction dataset.
+# VERIFY every column name, date format and value alias below against the file you download.
+# The bronze reader validates the CSV header against `source_columns` and fails fast on a mismatch.
+profile: saml_d
+source_columns: [Time, Date, Sender_account, Receiver_account, Amount, Payment_currency,
+                 Received_currency, Sender_bank_location, Receiver_bank_location, Payment_type,
+                 Is_laundering, Laundering_type]
+timestamp:
+  date_col: Date
+  time_col: Time
+  format: "yyyy-MM-dd HH:mm:ss"
+columns:
+  sender_account: Sender_account
+  receiver_account: Receiver_account
+  amount_original: Amount
+  currency_sent: Payment_currency
+  currency_received: Received_currency
+  sender_country: Sender_bank_location
+  receiver_country: Receiver_bank_location
+  payment_type: Payment_type
+  is_laundering: Is_laundering
+  laundering_type: Laundering_type
+# Source currency labels -> ISO 4217. Unmapped values fail rule TXN_005 and are quarantined.
+currency_aliases:
+  "UK pounds": GBP
+  "Dirham": AED
+  "Euro": EUR
+  "US dollar": USD
+  "Indian rupee": INR
+  "Pakistani rupee": PKR
+  "Turkish lira": TRY
+  "Moroccan dirham": MAD
+  "Swiss franc": CHF
+  "Yen": JPY
+  "Naira": NGN
+  "Mexican Peso": MXN
