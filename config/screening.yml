@@ -1,0 +1,6 @@
+# Sanctions screening parameters (illustrative; calibrate with the seeded ground truth).
+review_min: 80          # score >= review_min  -> REVIEW
+strong_min: 92          # score >= strong_min  -> STRONG
+min_token_length: 3     # tokens shorter than this are not used for blocking
+particles: [al, el, bin, ibn, bint, abu, abd, abdul, van, von, de, da]   # excluded from blocking
+list_source_filter: null                # e.g. [ofac_sdn]; null = all lists

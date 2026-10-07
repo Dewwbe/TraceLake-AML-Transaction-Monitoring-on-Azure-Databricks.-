@@ -1,0 +1,46 @@
+# Detection rule parameters. ALL THRESHOLDS ARE ILLUSTRATIVE ASSUMPTIONS, not regulatory values.
+# Tune them against labelled data; see docs/rules_catalogue.md.
+lookback_days: 7          # extra history re-read each incremental run (must be >= the largest window)
+
+rules:
+  R001:
+    name: Structuring
+    typology: Structuring
+    enabled: true
+    description: Repeated transactions just below a reporting threshold within a short window.
+    params: {threshold_aed: 50000, lower_ratio: 0.8, min_count: 3, window_days: 3}
+  R002:
+    name: Rapid pass-through
+    typology: Rapid movement of funds
+    enabled: true
+    description: Funds received and largely sent onward within a short window.
+    params: {min_amount_aed: 50000, out_in_ratio: 0.9, window_days: 2}
+  R003:
+    name: High-risk jurisdiction
+    typology: High-risk country exposure
+    enabled: true
+    description: Cross-border transaction with a counterparty country in a high-risk tier at the time.
+    params: {min_amount_aed: 10000, tiers: [HIGH]}
+  R004:
+    name: Fan-out / fan-in
+    typology: Fan-out and fan-in
+    enabled: true
+    description: One account paying (or paid by) many distinct counterparties within a window.
+    params: {min_counterparties: 8, window_days: 1}
+  R005:
+    name: Round amounts
+    typology: Round-amount transfers
+    enabled: true
+    description: Repeated round-amount transfers by one sender within a window.
+    params: {round_unit: 1000, min_amount_aed: 10000, min_count: 3, window_days: 7}
+
+# Illustrative customer risk weights feeding the SCD2 customer rating.
+customer_risk:
+  country_points: {LOW: 0, MEDIUM: 15, HIGH: 35}
+  nationality_factor: 0.5
+  screening_points: {REVIEW: 25, STRONG: 60}
+  alert_points_each: 5
+  alert_points_cap: 30
+  alert_window_days: 30
+  medium_min: 30
+  high_min: 60
