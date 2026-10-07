@@ -1,0 +1,21 @@
+# Manual deploy of the Databricks bundle. UNTESTED: requires repository secrets
+# DATABRICKS_HOST and DATABRICKS_TOKEN (prefer OIDC / a service principal in real use).
+name: deploy-dev
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: databricks/setup-cli@main
+      - run: pip install build
+      - run: databricks bundle validate -t dev
+      - run: databricks bundle deploy -t dev

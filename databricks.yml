@@ -1,0 +1,299 @@
+# Databricks Asset Bundle. Jobs run on serverless compute (classic VM clusters hit Azure capacity stockouts on a trial subscription).
+# Settings reach the code as aml-stage task parameters because serverless cannot set environment variables.
+bundle:
+  name: aml-monitoring-lakehouse
+
+variables:
+  catalog:
+    description: Unity Catalog catalog name
+    default: aml
+  landing_path:
+    description: Landing zone (Unity Catalog volume path)
+    default: /Volumes/aml/landing/files
+  checkpoint_path:
+    default: /Volumes/aml/landing/checkpoints
+
+artifacts:
+  aml_wheel:
+    type: whl
+    build: python -m build --wheel
+    path: .
+
+resources:
+  jobs:
+    aml_stage_runner:
+      name: aml-stage-runner
+      max_concurrent_runs: 1
+      parameters: []
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+            dependencies:
+              - ./dist/*.whl
+      tasks:
+        - task_key: run_stage
+          environment_key: default
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: init_tables
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+
+    aml_stream_ingest:
+      name: aml-stream-ingest
+      # Continuous job, PAUSED by default to avoid idle cost. Unpause to run the Auto Loader stream.
+      continuous:
+        pause_status: PAUSED
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+            dependencies:
+              - ./dist/*.whl
+      tasks:
+        - task_key: bronze_transactions
+          environment_key: default
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: bronze_transactions
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+
+    aml_full_pipeline:
+      name: aml-full-pipeline
+      # One-shot run of every stage in order (mirrors aml.jobs.local_pipeline). Skips fetch_sanctions (needs internet egress).
+      max_concurrent_runs: 1
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+            dependencies:
+              - ./dist/*.whl
+      tasks:
+        - task_key: bronze_transactions
+          environment_key: default
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: bronze_transactions
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: bronze_reference
+          environment_key: default
+          depends_on:
+            - task_key: bronze_transactions
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: bronze_reference
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: silver_transactions
+          environment_key: default
+          depends_on:
+            - task_key: bronze_reference
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: silver_transactions
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: silver_reference
+          environment_key: default
+          depends_on:
+            - task_key: silver_transactions
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: silver_reference
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: dq_gate
+          environment_key: default
+          depends_on:
+            - task_key: silver_reference
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: dq_gate
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: update_country_dim
+          environment_key: default
+          depends_on:
+            - task_key: dq_gate
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: update_country_dim
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: screening
+          environment_key: default
+          depends_on:
+            - task_key: update_country_dim
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: screening
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: update_customer_dim_initial
+          environment_key: default
+          depends_on:
+            - task_key: screening
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: update_customer_dim
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: detect_rules
+          environment_key: default
+          depends_on:
+            - task_key: update_customer_dim_initial
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: detect_rules
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: build_alerts
+          environment_key: default
+          depends_on:
+            - task_key: detect_rules
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: build_alerts
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: update_customer_dim_feedback
+          environment_key: default
+          depends_on:
+            - task_key: build_alerts
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: update_customer_dim
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+        - task_key: build_marts
+          environment_key: default
+          depends_on:
+            - task_key: update_customer_dim_feedback
+          python_wheel_task:
+            package_name: aml_monitoring_lakehouse
+            entry_point: aml-stage
+            named_parameters:
+              stage: build_marts
+              run-id: "{{job.run_id}}"
+              store: delta
+              catalog: ${var.catalog}
+              landing-path: ${var.landing_path}
+              checkpoint-path: ${var.checkpoint_path}
+              use-autoloader: "true"
+              config-dir: ${workspace.file_path}/config
+              reference-dir: ${workspace.file_path}/reference
+
+sync:
+  include:
+    - config/**
+    - reference/**
+
+targets:
+  dev:
+    mode: development
+    default: true
+    # No workspace host here: the Databricks CLI profile supplies it (databricks auth login --host <url>, then pass -p <profile>).
