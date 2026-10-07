@@ -1,0 +1,88 @@
+table fact_case
+
+	column case_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: case_id
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column customer_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: customer_key
+
+	column risk_rating
+		dataType: string
+		summarizeBy: none
+		sourceColumn: risk_rating
+
+	column opened_ts
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: opened_ts
+
+	column priority
+		dataType: string
+		summarizeBy: none
+		sourceColumn: priority
+		sortByColumn: priority_sort
+
+	column status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column alert_count
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: alert_count
+
+	column max_score
+		dataType: double
+		summarizeBy: none
+		sourceColumn: max_score
+
+	column assigned_to
+		dataType: string
+		summarizeBy: none
+		sourceColumn: assigned_to
+
+	column disposition
+		dataType: string
+		summarizeBy: none
+		sourceColumn: disposition
+
+	column closed_ts
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: closed_ts
+
+	column priority_sort
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: priority_sort
+
+	measure Cases = COUNTROWS(fact_case)
+		formatString: #,0
+
+	measure 'Escalated Cases' = CALCULATE(COUNTROWS(fact_case), fact_case[disposition] = "ESCALATED")
+		formatString: #,0
+
+	measure 'Cases In Review' = CALCULATE(COUNTROWS(fact_case), fact_case[status] = "IN_REVIEW")
+		formatString: #,0
+
+	partition fact_case = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "fact_case"),
+				    Step1 = Table.AddColumn(Source, "priority_sort", each if [priority] = "CRITICAL" then 1 else if [priority] = "HIGH" then 2 else if [priority] = "MEDIUM" then 3 else 4, Int64.Type),
+				    Step2 = Table.SelectColumns(Step1, {"case_id", "customer_id", "customer_key", "risk_rating", "opened_ts", "priority", "status", "alert_count", "max_score", "assigned_to", "disposition", "closed_ts", "priority_sort"})
+				in
+					Step2

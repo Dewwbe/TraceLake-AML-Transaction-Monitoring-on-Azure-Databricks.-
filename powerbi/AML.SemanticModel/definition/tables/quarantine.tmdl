@@ -1,0 +1,112 @@
+table quarantine
+
+	column transaction_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+	column event_ts
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: event_ts
+
+	column event_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: event_date
+
+	column sender_account
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sender_account
+
+	column receiver_account
+		dataType: string
+		summarizeBy: none
+		sourceColumn: receiver_account
+
+	column amount_original
+		dataType: double
+		summarizeBy: none
+		sourceColumn: amount_original
+
+	column currency_sent
+		dataType: string
+		summarizeBy: none
+		sourceColumn: currency_sent
+
+	column currency_received
+		dataType: string
+		summarizeBy: none
+		sourceColumn: currency_received
+
+	column amount_aed
+		dataType: double
+		summarizeBy: none
+		sourceColumn: amount_aed
+
+	column sender_country
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sender_country
+
+	column receiver_country
+		dataType: string
+		summarizeBy: none
+		sourceColumn: receiver_country
+
+	column payment_type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: payment_type
+
+	column is_laundering
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: is_laundering
+
+	column laundering_type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: laundering_type
+
+	column _ingested_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: _ingested_at
+
+	column raw_event_ts
+		dataType: string
+		summarizeBy: none
+		sourceColumn: raw_event_ts
+
+	column raw_amount
+		dataType: string
+		summarizeBy: none
+		sourceColumn: raw_amount
+
+	column quarantined_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: quarantined_at
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	measure 'Quarantined Transactions' = COUNTROWS(quarantine)
+		formatString: #,0
+
+	partition quarantine = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("silver", "transactions_quarantine"),
+				    Step1 = Table.SelectColumns(Source, {"transaction_id", "event_ts", "event_date", "sender_account", "receiver_account", "amount_original", "currency_sent", "currency_received", "amount_aed", "sender_country", "receiver_country", "payment_type", "is_laundering", "laundering_type", "_ingested_at", "raw_event_ts", "raw_amount", "quarantined_at", "run_id"})
+				in
+					Step1

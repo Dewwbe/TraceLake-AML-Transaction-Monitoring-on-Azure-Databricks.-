@@ -1,0 +1,148 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "ratingchanges",
+  "position": {
+    "x": 660,
+    "y": 300,
+    "z": 0,
+    "height": 400,
+    "width": 600,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "customer_id"
+                }
+              },
+              "queryRef": "customer_rating_history.customer_id",
+              "nativeQueryRef": "customer_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "risk_rating"
+                }
+              },
+              "queryRef": "customer_rating_history.risk_rating",
+              "nativeQueryRef": "risk_rating"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "risk_score"
+                }
+              },
+              "queryRef": "customer_rating_history.risk_score",
+              "nativeQueryRef": "risk_score"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "valid_from"
+                }
+              },
+              "queryRef": "customer_rating_history.valid_from",
+              "nativeQueryRef": "valid_from"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "valid_to"
+                }
+              },
+              "queryRef": "customer_rating_history.valid_to",
+              "nativeQueryRef": "valid_to"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_rating_history"
+                    }
+                  },
+                  "Property": "is_current"
+                }
+              },
+              "queryRef": "customer_rating_history.is_current",
+              "nativeQueryRef": "is_current"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "customer_rating_history"
+                  }
+                },
+                "Property": "customer_id"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Customers whose risk rating changed (SCD Type 2)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

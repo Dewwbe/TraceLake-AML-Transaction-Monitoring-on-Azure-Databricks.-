@@ -1,0 +1,134 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "topmatches",
+  "position": {
+    "x": 20,
+    "y": 300,
+    "z": 0,
+    "height": 400,
+    "width": 620,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_screening"
+                    }
+                  },
+                  "Property": "customer_name"
+                }
+              },
+              "queryRef": "fact_screening.customer_name",
+              "nativeQueryRef": "customer_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_screening"
+                    }
+                  },
+                  "Property": "matched_name"
+                }
+              },
+              "queryRef": "fact_screening.matched_name",
+              "nativeQueryRef": "matched_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_screening"
+                    }
+                  },
+                  "Property": "score"
+                }
+              },
+              "queryRef": "fact_screening.score",
+              "nativeQueryRef": "score"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_screening"
+                    }
+                  },
+                  "Property": "band"
+                }
+              },
+              "queryRef": "fact_screening.band",
+              "nativeQueryRef": "band"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_screening"
+                    }
+                  },
+                  "Property": "list_source"
+                }
+              },
+              "queryRef": "fact_screening.list_source",
+              "nativeQueryRef": "list_source"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_screening"
+                  }
+                },
+                "Property": "score"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top sanctions matches'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

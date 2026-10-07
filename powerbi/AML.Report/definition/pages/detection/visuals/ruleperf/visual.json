@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "ruleperf",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 0,
+    "height": 260,
+    "width": 1240,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "rule_performance"
+                    }
+                  },
+                  "Property": "rule_id"
+                }
+              },
+              "queryRef": "rule_performance.rule_id",
+              "nativeQueryRef": "rule_id",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "rule_performance"
+                    }
+                  },
+                  "Property": "Rule Precision"
+                }
+              },
+              "queryRef": "rule_performance.Rule Precision",
+              "nativeQueryRef": "Rule Precision"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "rule_performance"
+                    }
+                  },
+                  "Property": "Rule Recall"
+                }
+              },
+              "queryRef": "rule_performance.Rule Recall",
+              "nativeQueryRef": "Rule Recall"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rule precision and recall (latest run)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

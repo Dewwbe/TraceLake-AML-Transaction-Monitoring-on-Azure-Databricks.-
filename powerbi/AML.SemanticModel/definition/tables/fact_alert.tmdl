@@ -1,0 +1,101 @@
+table fact_alert
+
+	column alert_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: alert_id
+
+	column alert_type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: alert_type
+
+	column rule_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_id
+
+	column alert_ts
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: alert_ts
+
+	column alert_date_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: alert_date_key
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column customer_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: customer_key
+
+	column risk_rating_at_alert
+		dataType: string
+		summarizeBy: none
+		sourceColumn: risk_rating_at_alert
+
+	column account_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: account_id
+
+	column transaction_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+	column score
+		dataType: double
+		summarizeBy: none
+		sourceColumn: score
+
+	column band
+		dataType: string
+		summarizeBy: none
+		sourceColumn: band
+
+	column evidence
+		dataType: string
+		summarizeBy: none
+		sourceColumn: evidence
+
+	column status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column case_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: case_id
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	column Rule = COALESCE(RELATED(dim_rule[rule_name]), "Sanctions screening")
+		dataType: string
+		summarizeBy: none
+
+	measure Alerts = COUNTROWS(fact_alert)
+		formatString: #,0
+
+	measure 'Alerts per 1,000 Transactions' = DIVIDE([Alerts], [Transactions]) * 1000
+		formatString: 0.0
+
+	partition fact_alert = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "fact_alert"),
+				    Step1 = Table.SelectColumns(Source, {"alert_id", "alert_type", "rule_id", "alert_ts", "alert_date_key", "customer_id", "customer_key", "risk_rating_at_alert", "account_id", "transaction_id", "score", "band", "evidence", "status", "case_id", "run_id"})
+				in
+					Step1

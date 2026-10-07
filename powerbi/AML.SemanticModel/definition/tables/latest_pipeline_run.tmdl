@@ -1,0 +1,49 @@
+table latest_pipeline_run
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	column stage
+		dataType: string
+		summarizeBy: none
+		sourceColumn: stage
+
+	column started_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: started_at
+
+	column finished_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: finished_at
+
+	column status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column message
+		dataType: string
+		summarizeBy: none
+		sourceColumn: message
+
+	column seconds
+		dataType: double
+		summarizeBy: none
+		sourceColumn: seconds
+
+	partition latest_pipeline_run = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("ops", "pipeline_runs"),
+				    Step1 = Table.SelectRows(Source, let r = Table.FirstN(Table.Sort(Source, {{"started_at", Order.Descending}}), 1)[run_id]{0} in each [run_id] = r),
+				    Step2 = Table.AddColumn(Step1, "seconds", each Duration.TotalSeconds([finished_at] - [started_at]), type number),
+				    Step3 = Table.SelectColumns(Step2, {"run_id", "stage", "started_at", "finished_at", "status", "message", "seconds"})
+				in
+					Step3

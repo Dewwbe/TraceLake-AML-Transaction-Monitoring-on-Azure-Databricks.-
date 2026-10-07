@@ -1,0 +1,24 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+
+ref table dim_date
+ref table dim_rule
+ref table dim_customer
+ref table dim_account
+ref table fact_transaction
+ref table fact_alert
+ref table fact_case
+ref table fact_screening
+ref table rule_performance
+ref table quarantine
+ref table dq_failures
+ref table latest_pipeline_run
+ref table customer_rating_history
+
+ref expression DatabricksHost
+ref expression DatabricksHttpPath
+ref expression Catalog
+ref expression fnTable

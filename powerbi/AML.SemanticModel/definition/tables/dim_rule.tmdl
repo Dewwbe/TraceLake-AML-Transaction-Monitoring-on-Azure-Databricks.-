@@ -1,0 +1,40 @@
+table dim_rule
+
+	column rule_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_id
+
+	column rule_name
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_name
+
+	column typology
+		dataType: string
+		summarizeBy: none
+		sourceColumn: typology
+
+	column description
+		dataType: string
+		summarizeBy: none
+		sourceColumn: description
+
+	column enabled
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: enabled
+
+	column parameters
+		dataType: string
+		summarizeBy: none
+		sourceColumn: parameters
+
+	partition dim_rule = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "dim_rule"),
+				    Step1 = Table.SelectColumns(Source, {"rule_id", "rule_name", "typology", "description", "enabled", "parameters"})
+				in
+					Step1

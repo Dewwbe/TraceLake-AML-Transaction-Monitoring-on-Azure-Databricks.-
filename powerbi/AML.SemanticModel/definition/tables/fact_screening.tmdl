@@ -1,0 +1,70 @@
+table fact_screening
+
+	column screening_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: screening_id
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column entry_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: entry_id
+
+	column list_source
+		dataType: string
+		summarizeBy: none
+		sourceColumn: list_source
+
+	column customer_name
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_name
+
+	column matched_name
+		dataType: string
+		summarizeBy: none
+		sourceColumn: matched_name
+
+	column score
+		dataType: double
+		summarizeBy: none
+		sourceColumn: score
+
+	column band
+		dataType: string
+		summarizeBy: none
+		sourceColumn: band
+
+	column list_snapshot_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: list_snapshot_date
+
+	column scored_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: scored_at
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	measure 'Screening Hits' = COUNTROWS(fact_screening)
+		formatString: #,0
+
+	partition fact_screening = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "fact_screening"),
+				    Step1 = Table.SelectColumns(Source, {"screening_id", "customer_id", "entry_id", "list_source", "customer_name", "matched_name", "score", "band", "list_snapshot_date", "scored_at", "run_id"})
+				in
+					Step1

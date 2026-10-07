@@ -1,0 +1,89 @@
+table dim_customer
+
+	column customer_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: customer_key
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column full_name
+		dataType: string
+		summarizeBy: none
+		sourceColumn: full_name
+
+	column date_of_birth
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: date_of_birth
+
+	column nationality
+		dataType: string
+		summarizeBy: none
+		sourceColumn: nationality
+
+	column residence_country
+		dataType: string
+		summarizeBy: none
+		sourceColumn: residence_country
+
+	column occupation
+		dataType: string
+		summarizeBy: none
+		sourceColumn: occupation
+
+	column onboarding_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: onboarding_date
+
+	column risk_score
+		dataType: double
+		summarizeBy: none
+		sourceColumn: risk_score
+
+	column risk_rating
+		dataType: string
+		summarizeBy: none
+		sourceColumn: risk_rating
+		sortByColumn: risk_sort
+
+	column valid_from
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: valid_from
+
+	column valid_to
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: valid_to
+
+	column is_current
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_current
+
+	column risk_sort
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: risk_sort
+
+	measure 'Current Customers' = CALCULATE(COUNTROWS(dim_customer), dim_customer[is_current] = TRUE())
+		formatString: #,0
+
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "dim_customer"),
+				    Step1 = Table.AddColumn(Source, "risk_sort", each if [risk_rating] = "HIGH" then 1 else if [risk_rating] = "MEDIUM" then 2 else 3, Int64.Type),
+				    Step2 = Table.SelectColumns(Step1, {"customer_key", "customer_id", "full_name", "date_of_birth", "nationality", "residence_country", "occupation", "onboarding_date", "risk_score", "risk_rating", "valid_from", "valid_to", "is_current", "risk_sort"})
+				in
+					Step2

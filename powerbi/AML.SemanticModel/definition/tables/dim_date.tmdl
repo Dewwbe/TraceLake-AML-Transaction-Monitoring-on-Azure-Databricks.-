@@ -1,0 +1,53 @@
+table dim_date
+	dataCategory: Time
+
+	column date_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column date
+		dataType: dateTime
+		isKey
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: date
+
+	column year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: year
+
+	column quarter
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: quarter
+
+	column month
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: month
+
+	column day
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: day
+
+	column day_of_week
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+	column is_weekend
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "dim_date"),
+				    Step1 = Table.SelectColumns(Source, {"date_key", "date", "year", "quarter", "month", "day", "day_of_week", "is_weekend"})
+				in
+					Step1

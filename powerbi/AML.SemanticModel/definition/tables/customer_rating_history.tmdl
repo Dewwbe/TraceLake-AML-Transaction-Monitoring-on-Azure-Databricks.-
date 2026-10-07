@@ -1,0 +1,51 @@
+table customer_rating_history
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column risk_score
+		dataType: double
+		summarizeBy: none
+		sourceColumn: risk_score
+
+	column risk_rating
+		dataType: string
+		summarizeBy: none
+		sourceColumn: risk_rating
+
+	column valid_from
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: valid_from
+
+	column valid_to
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: valid_to
+
+	column is_current
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_current
+
+	column versions
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: versions
+
+	partition customer_rating_history = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "dim_customer"),
+				    Step1 = Table.Group(Source, {"customer_id"}, {{"versions", each Table.RowCount(_), Int64.Type}}),
+				    Step2 = Table.SelectRows(Step1, each [versions] > 1),
+				    Step3 = Table.NestedJoin(Source, {"customer_id"}, Step2, {"customer_id"}, "m", JoinKind.Inner),
+				    Step4 = Table.ExpandTableColumn(Step3, "m", {"versions"}),
+				    Step5 = Table.SelectColumns(Step4, {"customer_id", "risk_score", "risk_rating", "valid_from", "valid_to", "is_current", "versions"})
+				in
+					Step5

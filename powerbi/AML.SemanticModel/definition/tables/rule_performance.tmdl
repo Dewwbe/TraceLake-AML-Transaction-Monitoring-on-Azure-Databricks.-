@@ -1,0 +1,58 @@
+table rule_performance
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	column rule_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_id
+
+	column alerted_accounts
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: alerted_accounts
+
+	column true_positive_accounts
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: true_positive_accounts
+
+	column positive_accounts
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: positive_accounts
+
+	column precision
+		dataType: double
+		summarizeBy: none
+		sourceColumn: precision
+
+	column recall
+		dataType: double
+		summarizeBy: none
+		sourceColumn: recall
+
+	column computed_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: computed_at
+
+	measure 'Rule Precision' = AVERAGE(rule_performance[precision])
+		formatString: 0.0%
+
+	measure 'Rule Recall' = AVERAGE(rule_performance[recall])
+		formatString: 0.0%
+
+	partition rule_performance = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "mart_rule_performance"),
+				    Step1 = Table.SelectRows(Source, let r = Table.FirstN(Table.Sort(Source, {{"computed_at", Order.Descending}}), 1)[run_id]{0} in each [run_id] = r),
+				    Step2 = Table.SelectColumns(Step1, {"run_id", "rule_id", "alerted_accounts", "true_positive_accounts", "positive_accounts", "precision", "recall", "computed_at"})
+				in
+					Step2

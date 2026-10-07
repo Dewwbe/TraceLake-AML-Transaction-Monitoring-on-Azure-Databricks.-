@@ -1,0 +1,26 @@
+table dim_account
+
+	column account_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: account_id
+
+	column customer_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column account_open_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: account_open_date
+
+	partition dim_account = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "dim_account"),
+				    Step1 = Table.SelectColumns(Source, {"account_id", "customer_id", "account_open_date"})
+				in
+					Step1

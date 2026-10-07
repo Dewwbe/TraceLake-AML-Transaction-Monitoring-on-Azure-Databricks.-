@@ -1,0 +1,62 @@
+table dq_failures
+
+	column run_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: run_id
+
+	column table_name
+		dataType: string
+		summarizeBy: none
+		sourceColumn: table_name
+
+	column rule_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_id
+
+	column rule_type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rule_type
+
+	column severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: severity
+
+	column action
+		dataType: string
+		summarizeBy: none
+		sourceColumn: action
+
+	column rows_checked
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: rows_checked
+
+	column rows_failed
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: rows_failed
+
+	column fail_pct
+		dataType: double
+		summarizeBy: none
+		sourceColumn: fail_pct
+
+	column checked_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: checked_at
+
+	partition dq_failures = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("ops", "dq_results"),
+				    Step1 = Table.SelectRows(Source, each [rows_failed] > 0),
+				    Step2 = Table.SelectColumns(Step1, {"run_id", "table_name", "rule_id", "rule_type", "severity", "action", "rows_checked", "rows_failed", "fail_pct", "checked_at"})
+				in
+					Step2

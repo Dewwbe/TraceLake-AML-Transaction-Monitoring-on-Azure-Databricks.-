@@ -1,0 +1,15 @@
+expression DatabricksHost = "<your-workspace>.azuredatabricks.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+expression DatabricksHttpPath = "/sql/1.0/warehouses/<warehouse-id>" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+expression Catalog = "aml" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+expression fnTable =
+		(schemaName as text, tableName as text) as table =>
+		let
+		    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = Catalog, Database = null, EnableAutomaticProxyDiscovery = null]),
+		    Db = Source{[Name = Catalog, Kind = "Database"]}[Data],
+		    Sch = Db{[Name = schemaName, Kind = "Schema"]}[Data],
+		    Tbl = Sch{[Name = tableName, Kind = "Table"]}[Data]
+		in
+		    Tbl

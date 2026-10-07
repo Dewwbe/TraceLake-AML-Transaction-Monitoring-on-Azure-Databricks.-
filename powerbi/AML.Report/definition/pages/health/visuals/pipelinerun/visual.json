@@ -1,0 +1,120 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "pipelinerun",
+  "position": {
+    "x": 20,
+    "y": 370,
+    "z": 0,
+    "height": 330,
+    "width": 1240,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "latest_pipeline_run"
+                    }
+                  },
+                  "Property": "stage"
+                }
+              },
+              "queryRef": "latest_pipeline_run.stage",
+              "nativeQueryRef": "stage"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "latest_pipeline_run"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "latest_pipeline_run.status",
+              "nativeQueryRef": "status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "latest_pipeline_run"
+                    }
+                  },
+                  "Property": "started_at"
+                }
+              },
+              "queryRef": "latest_pipeline_run.started_at",
+              "nativeQueryRef": "started_at"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "latest_pipeline_run"
+                    }
+                  },
+                  "Property": "seconds"
+                }
+              },
+              "queryRef": "latest_pipeline_run.seconds",
+              "nativeQueryRef": "seconds"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "latest_pipeline_run"
+                  }
+                },
+                "Property": "started_at"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Latest pipeline run'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

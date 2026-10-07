@@ -1,0 +1,176 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "dqfailures",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 0,
+    "height": 330,
+    "width": 1240,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "table_name"
+                }
+              },
+              "queryRef": "dq_failures.table_name",
+              "nativeQueryRef": "table_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "rule_id"
+                }
+              },
+              "queryRef": "dq_failures.rule_id",
+              "nativeQueryRef": "rule_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "rule_type"
+                }
+              },
+              "queryRef": "dq_failures.rule_type",
+              "nativeQueryRef": "rule_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "severity"
+                }
+              },
+              "queryRef": "dq_failures.severity",
+              "nativeQueryRef": "severity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "action"
+                }
+              },
+              "queryRef": "dq_failures.action",
+              "nativeQueryRef": "action"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "rows_checked"
+                }
+              },
+              "queryRef": "dq_failures.rows_checked",
+              "nativeQueryRef": "rows_checked"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "rows_failed"
+                }
+              },
+              "queryRef": "dq_failures.rows_failed",
+              "nativeQueryRef": "rows_failed"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_failures"
+                    }
+                  },
+                  "Property": "fail_pct"
+                }
+              },
+              "queryRef": "dq_failures.fail_pct",
+              "nativeQueryRef": "fail_pct"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dq_failures"
+                  }
+                },
+                "Property": "rows_failed"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Data quality failures'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,70 @@
+table fact_transaction
+
+	column transaction_id
+		dataType: string
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+	column date_key
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column event_ts
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: event_ts
+
+	column sender_account
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sender_account
+
+	column receiver_account
+		dataType: string
+		summarizeBy: none
+		sourceColumn: receiver_account
+
+	column sender_country
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sender_country
+
+	column receiver_country
+		dataType: string
+		summarizeBy: none
+		sourceColumn: receiver_country
+
+	column payment_type
+		dataType: string
+		summarizeBy: none
+		sourceColumn: payment_type
+
+	column amount_aed
+		dataType: double
+		summarizeBy: none
+		sourceColumn: amount_aed
+
+	column is_laundering
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: is_laundering
+
+	measure Transactions = COUNTROWS(fact_transaction)
+		formatString: #,0
+
+	measure 'Transaction Value (AED)' = SUM(fact_transaction[amount_aed])
+		formatString: #,0
+
+	measure 'Labelled Laundering Transactions' = CALCULATE(COUNTROWS(fact_transaction), fact_transaction[is_laundering] = 1)
+		formatString: #,0
+
+	partition fact_transaction = m
+		mode: import
+		source =
+				let
+				    Source = fnTable("gold", "fact_transaction"),
+				    Step1 = Table.SelectColumns(Source, {"transaction_id", "date_key", "event_ts", "sender_account", "receiver_account", "sender_country", "receiver_country", "payment_type", "amount_aed", "is_laundering"})
+				in
+					Step1
